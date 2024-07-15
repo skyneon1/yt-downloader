@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Downloader</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 50px;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+input[type="text"], input[type="submit"], button {
+    padding: 10px;
+    margin: 10px;
+    width: calc(100% - 22px);
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #d32f2f;
+}
+
+.message {
+    color: red;
+    margin-top: 10px;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>YouTube Video Downloader</h1>
+        <form id="downloadForm">
+            <input type="text" id="videoUrl" name="url" placeholder="Paste YouTube video URL">
+            <br>
+            <input type="submit" value="Download">
+            <button type="button" id="clearButton">Clear</button>
+        </form>
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const downloadForm = document.getElementById('downloadForm');
+    const messageDiv = document.getElementById('message');
+    const clearButton = document.getElementById('clearButton');
+
+    downloadForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const url = document.getElementById('videoUrl').value.trim();
+        if (!url) {
+            messageDiv.textContent = 'Please enter a valid YouTube video URL.';
+            return;
+        }
+
+        try {
+            const response = await fetch('/download', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: url })
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`Download failed: ${text}`);
+            }
+
+            const data = await response.json();
+            if (data.success) {
+                messageDiv.textContent = `Downloaded: ${data.filename}`;
+                const a = document.createElement('a');
+                a.href = `/download-file/${encodeURIComponent(data.filename)}`;
+                a.download = data.filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                throw new Error(`Download failed: ${data.error}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            messageDiv.textContent = error.message;
+        }
+    });
+
+    clearButton.addEventListener('click', function() {
+        document.getElementById('videoUrl').value = '';
+        messageDiv.textContent = '';
+    });
+});
+
+    </script>
+</body>
+</html>

@@ -5,17 +5,16 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000; // Use environment variable PORT if available
 
 // Middleware to parse JSON bodies
 app.set("view engine", "ejs");
 app.set("views", "./views");  // Ensuring Express knows where to look for views
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json()); // Uncomment this to parse JSON bodies
 
 // Serve the HTML file
 app.get('/', (req, res) => {
-    res.render('index');  // Ensure 'index.ejs' is placed in the 'views' folder
+    res.sendFile(path.join(__dirname, 'index.ejs'));
 });
 
 // Endpoint to handle video download
@@ -80,5 +79,5 @@ if (!fs.existsSync(downloadsDir)) {
 }
 
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+    console.log(`Server is running on port ${port}`);
 });

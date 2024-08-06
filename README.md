@@ -9,7 +9,7 @@ A simple page to download youtube videos at hightest quality hosted on render.co
 1. HTML5  
 2. CSS3
 3. JS
-4. node js
+4. Node js
    
 
 ## Deployment
